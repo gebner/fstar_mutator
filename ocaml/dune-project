@@ -1,0 +1,7 @@
+(lang dune 3.2)
+(name fstar_mutator)
+(generate_opam_files false)
+(package
+  (name fstar_mutator)
+  (synopsis "A tool to mutate F* code")
+)

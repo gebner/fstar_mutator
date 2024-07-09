@@ -1,0 +1,12 @@
+(include_subdirs unqualified)
+(executable
+ (name Mutate)
+ (public_name fstar_mutator.exe)
+ (libraries
+    batteries
+    fstar.lib
+ )
+ (flags (:standard -w -A))
+ (link_flags "-linkall")
+ (modes (native exe))
+)
