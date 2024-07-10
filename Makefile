@@ -32,7 +32,7 @@ exe: extract
 
 # And then, in a separate invocation, from each .checked.lax we
 # extract an .ml file
-$(OUTPUT_DIRECTORY)/%.ml: %.fst
+$(OUTPUT_DIRECTORY)/%.ml: %.fst Rand.fsti
 	mkdir -p $(OUTPUT_DIRECTORY)
 	$(call msg, "EXTRACT", $(notdir $@))
 	$(Q)$(BENCHMARK_PRE) $(FSTAR_C) $< \
