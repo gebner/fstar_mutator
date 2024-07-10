@@ -49,6 +49,7 @@ let rec mut_term' (mh: mut_here_p) (t: term') : ML term' =
   | Abs (ps, t) -> Abs (List.map (mut_pattern mh) ps, mut_term mh t)
   | App (a, b, i) ->
     if mh () then a.tm else
+    if mh () then App (a, { b with tm = Wild }, i) else
     App (mut_term mh a, mut_term mh b, i)
   | Let (q, ps, t) ->
     Let (q, List.map (fun (a,(p,t)) -> (a,(mut_pattern mh p, mut_term mh t))) ps, mut_term mh t)
@@ -136,7 +137,7 @@ and mut_binder' (mh: mut_here_p) (b: binder') : ML binder' =
   | NoName t -> NoName (mut_term mh t)
   | _ -> b
 and mut_term (mh: mut_here_p) (t: term) : ML term =
-  if is_single_line t.range && mh () then { t with tm = Wild } else
+  // if is_single_line t.range && mh () then { t with tm = Wild } else
   { t with tm = mut_term' mh t.tm }
 and mut_pattern (mh: mut_here_p) (p: pattern) : ML pattern =
   { p with pat = mut_pattern' mh p.pat }
@@ -182,16 +183,13 @@ try
   let frag = Parser.Driver.parse_fragment { frag_fname = "<input>"; frag_text = stdin; frag_line = 1; frag_col = 0 } in
   match frag with
   | Parser.Driver.Decls [decl] -> begin
-    print_stderr "%s\n" [Pprint.render (Parser.ToDocument.decl_to_document decl)];
     let n: int = 10 in
     let muts = sample_k_rand_muts 100 (fun mh -> mut_decl mh decl) in
     let j = JsonAssoc [
       "original", JsonStr (print_decl decl);
-      "mutations", JsonList (List.map (fun mut -> JsonAssoc [
-        "mutation", JsonStr (print_decl mut);
-      ]) muts);
+      "mutations", JsonList (List.map (fun mut -> JsonStr (print_decl mut)) muts);
     ] in
-    print_stdout (string_of_json j) [];
+    print_stdout "%s\n" [string_of_json j];
     ()
   end
   | _ ->
